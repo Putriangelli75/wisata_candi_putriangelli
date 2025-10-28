@@ -1,5 +1,4 @@
-import 'package:wisata_candi/models/candi.dart';
-
+import 'package:wisata_candi_putriangelli/models/candi.dart';
 var candiList = [
   Candi(
     name: 'Candi Borobudur',
