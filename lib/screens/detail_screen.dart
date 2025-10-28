@@ -1,9 +1,9 @@
-// screens/detail_screen.dart
 import 'package:flutter/material.dart';
-import 'package:wisata_candi_putriangelli/models/candi.dart';
-import 'package:wisata_candi_putriangelli/widgets/detail_gallery.dart';
-import 'package:wisata_candi_putriangelli/widgets/detail_header.dart';
+import 'package:wisata_candi/models/candi.dart';
+import 'package:wisata_candi/widgets/detail_gallery.dart';
+import 'package:wisata_candi/widgets/detail_header.dart';
 import 'package:wisata_candi/widgets/detail_info.dart';
+
 
 class DetailScreen extends StatefulWidget {
   final Candi candi;
