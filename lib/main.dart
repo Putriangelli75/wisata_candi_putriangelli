@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.deepPurple,
       ),
       home: DetailScreen(candi: candiList[0]),
+      // home: ProfileScreen()
     );
   }
 }
