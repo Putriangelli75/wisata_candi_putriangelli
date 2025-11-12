@@ -33,8 +33,8 @@ class MyApp extends StatelessWidget {
           ),
         useMaterial3: true,
       ),
-      home: DetailScreen(candi: candiList[0]),
-      //home: SignInScreen(),
+      //home: DetailScreen(candi: candiList[0]),
+      home: SignInScreen(),
       //home: const ProfileScreen(),
     );
   }
