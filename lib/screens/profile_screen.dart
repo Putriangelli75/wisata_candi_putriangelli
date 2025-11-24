@@ -115,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     : TextButton(
                     onPressed: signIn,
                     child: Text('Sign In')), //TextButton
-              ],
+             ],
             ), //Column
           ), //Padding
         ],
