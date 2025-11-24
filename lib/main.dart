@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:wisata_candi/data/candi_data.dart';
+import 'package:wisata_candi/widgets/profile_info_item.dart';
+import 'package:wisata_candi/screens/detail_screen.dart';
 import 'package:wisata_candi/screens/favorite_screen.dart';
 import 'package:wisata_candi/screens/home_screen.dart';
 import 'package:wisata_candi/screens/search_screen.dart';
 import 'package:wisata_candi/screens/profile_screen.dart';
 import 'package:wisata_candi/screens/signup_screen.dart';
 import 'package:wisata_candi/screens/signin_screen.dart';
-import 'package:wisata_candi/data/candi_data.dart';
-import 'package:wisata_candi/screens/detail_screen.dart';
-import 'widgets/profile_info_item.dart';
 
 
 void main() {
