@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:wisata_candi/data/candi_data.dart';
-import 'package:wisata_candi/widgets/profile_info_item.dart';
-import 'package:wisata_candi/screens/detail_screen.dart';
 import 'package:wisata_candi/screens/favorite_screen.dart';
 import 'package:wisata_candi/screens/home_screen.dart';
 import 'package:wisata_candi/screens/search_screen.dart';
 import 'package:wisata_candi/screens/profile_screen.dart';
 import 'package:wisata_candi/screens/signup_screen.dart';
 import 'package:wisata_candi/screens/signin_screen.dart';
+import 'package:wisata_candi/data/candi_data.dart';
+import 'package:wisata_candi/screens/detail_screen.dart';
+import 'widgets/profile_info_item.dart';
 
 
 void main() {
@@ -21,30 +21,35 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Wisata Candi',
-        theme: ThemeData(
-          appBarTheme: const AppBarTheme(
-            iconTheme: IconThemeData(color: Colors.deepPurple),
-            titleTextStyle: TextStyle(
-              color: Colors.deepPurple,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+      debugShowCheckedModeBanner: false,
+      title: 'Wisata Candi',
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          iconTheme: IconThemeData(color: Colors.deepPurple),
+          titleTextStyle: TextStyle(
+            color: Colors.deepPurple,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          colorScheme:
-          ColorScheme.fromSeed(seedColor: Colors.deepPurple).copyWith(
-            primary: Colors.deepPurple,
-            surface: Colors.deepPurple[50],
-          ),
-          useMaterial3: true,
         ),
-        initialRoute: '/',
-        routes: {
-          '/homescreen': (context) => const MainScreen(),
-          '/signin': (context) => SignInScreen(),
-          '/signup': (context) => const SignUpScreen(),
-        }
+        colorScheme:
+        ColorScheme.fromSeed(seedColor: Colors.deepPurple).copyWith(
+          primary: Colors.deepPurple,
+          surface: Colors.deepPurple[50],
+        ),
+        useMaterial3: true,
+      ),
+      // initialRoute: '/',
+      // routes: {
+      //   '/homescreen': (context) => const MainScreen(),
+      //   '/signin': (context) => const SignInScreen(),
+      //   '/signup': (context) => const SignUpScreen(),
+      // }
+      home : const MainScreen(),
+      routes: {
+        '/signin' : (context) => const SignInScreen(),
+        '/signup' : (context) => const SignUpScreen(),
+      },
     );
   }
 }
@@ -63,8 +68,8 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     SearchScreen(),
     FavoriteScreen(),
-    SignUpScreen(),
-    SignInScreen(),
+    // SignUpScreen(),
+    // SignInScreen(),
     ProfileScreen(),
   ];
 
