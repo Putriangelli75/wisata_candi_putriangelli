@@ -20,8 +20,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void signIn() {
     // setState(() {
     //   isSignedIn = true;
-    //   userName = 'Rizqi';
-    //   fullName = 'Rizqi Fajri Sya'Ban';
+    //   userName = 'Angel';
+    //   fullName = 'Putri Angel Li';
     //   favoriteCandiCount = 3;
     // });
     Navigator.pushNamed(context, '/signin');
