@@ -3,12 +3,11 @@ import 'package:wisata_candi/screens/favorite_screen.dart';
 import 'package:wisata_candi/screens/home_screen.dart';
 import 'package:wisata_candi/screens/search_screen.dart';
 import 'package:wisata_candi/screens/profile_screen.dart';
-import 'package:wisata_candi/screens/signup_screen.dart';
 import 'package:wisata_candi/screens/signin_screen.dart';
+import 'package:wisata_candi/screens/signup_screen.dart';
 import 'package:wisata_candi/data/candi_data.dart';
 import 'package:wisata_candi/screens/detail_screen.dart';
 import 'widgets/profile_info_item.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -32,11 +31,9 @@ class MyApp extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        colorScheme:
-        ColorScheme.fromSeed(seedColor: Colors.deepPurple).copyWith(
-          primary: Colors.deepPurple,
-          surface: Colors.deepPurple[50],
-        ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+        ).copyWith(primary: Colors.deepPurple, surface: Colors.deepPurple[50]),
         useMaterial3: true,
       ),
       // initialRoute: '/',
@@ -45,10 +42,10 @@ class MyApp extends StatelessWidget {
       //   '/signin': (context) => const SignInScreen(),
       //   '/signup': (context) => const SignUpScreen(),
       // }
-      home : const MainScreen(),
+      home: const MainScreen(),
       routes: {
-        '/signin' : (context) => const SignInScreen(),
-        '/signup' : (context) => const SignUpScreen(),
+        '/signin': (context) => const SignInScreen(),
+        '/signup': (context) => const SignUpScreen(),
       },
     );
   }
@@ -77,15 +74,11 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       //   TODO: 2. Buat properti body berupa widget yang ditampilkan
-      body: _children[
-      _currentIndex
-      ],
+      body: _children[_currentIndex],
       //   TODO: 3. Buat properti bottomNavigationBar dengan nilai Theme
       bottomNavigationBar: Theme(
         //   TODO: 4. Buat data dan child dari Theme
-        data: Theme.of(context).copyWith(
-          canvasColor: Colors.deepPurple[50],
-        ),
+        data: Theme.of(context).copyWith(canvasColor: Colors.deepPurple[50]),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) {
@@ -94,29 +87,21 @@ class _MainScreenState extends State<MainScreen> {
             });
           },
           items: const [
-            BottomNavigationBarItem(icon:
-            Icon(Icons.home,
-                color: Colors.deepPurple
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home, color: Colors.deepPurple),
+              label: 'Home',
             ),
-                label: 'Home'
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search, color: Colors.deepPurple),
+              label: 'Search',
             ),
-            BottomNavigationBarItem(icon:
-            Icon(Icons.search,
-                color: Colors.deepPurple
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite, color: Colors.deepPurple),
+              label: 'Favorite',
             ),
-                label: 'Search'
-            ),
-            BottomNavigationBarItem(icon:
-            Icon(Icons.favorite,
-                color: Colors.deepPurple
-            ),
-                label: 'Favorite'
-            ),
-            BottomNavigationBarItem(icon:
-            Icon(Icons.person,
-                color: Colors.deepPurple
-            ),
-                label: 'Profile'
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person, color: Colors.deepPurple),
+              label: 'Profile',
             ),
           ],
           selectedItemColor: Colors.deepPurple,

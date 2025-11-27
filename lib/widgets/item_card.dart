@@ -3,7 +3,7 @@ import 'package:wisata_candi/models/candi.dart';
 import 'package:wisata_candi/screens/detail_screen.dart';
 
 class ItemCard extends StatelessWidget {
-  //TODO: 1. Deklarasikan variabel yang dibutuhkan dan pasang pada konstruktor
+//   TODO: 1. Deklarasikan variabel yang dibutuhkan dan pasang pada konstruktor
   final Candi candi;
 
   const ItemCard({
