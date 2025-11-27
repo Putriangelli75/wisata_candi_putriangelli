@@ -5,27 +5,32 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  //TODO: 1. Deklarasikan variabel yang dibutuhkan
+//   TODO 1 : Deklarasi variabel yang dibutuhkan
   bool isSignedIn = false;
   String fullName = '';
   String userName = '';
   int favoriteCandiCount = 0;
+  late Color iconColor;
 
-  //TODO: 5. Implementasi fungsi signin
-  void signIn(){
-    setState(() {
-      isSignedIn = isSignedIn;
-    });
+  // TODO 5. Implementasi fungsi signIn
+  void signIn() {
+    // setState(() {
+    //   isSignedIn = true;
+    //   userName = 'Rizqi';
+    //   fullName = 'Rizqi Fajri Sya'Ban';
+    //   favoriteCandiCount = 3;
+    // });
+    Navigator.pushNamed(context, '/signin');
   }
-  //TODO: 6. Implementassi fungsi signout
-  void signOut(){
+
+  // TODO 6. Implementasi fungsi signOut
+  void signOut() {
     setState(() {
-      isSignedIn = isSignedIn;
+      isSignedIn = !isSignedIn;
     });
   }
 
@@ -36,12 +41,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Container(
             height: 200, width: double.infinity, color: Colors.deepPurple,
-          ), //Container
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
-                //TODO: 2. Buat bagian ProfilHeader yang berisi gambar profil
+                //   TODO 2 : Buat bagian ProfileHeader yang berisi gambar profile
                 Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
@@ -51,35 +56,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            border: Border.all(
-                                color: Colors.deepPurple, width: 2),
+                            border: Border.all(color: Colors.deepPurple, width: 2),
                             shape: BoxShape.circle,
-                          ), //BoxDecoration
+                          ),
                           child: CircleAvatar(
                             radius: 50,
-                            backgroundImage: AssetImage(
-                                'images/placeholder_image.png'),
-                          ), //CircleAvatar
-                        ), //Container
+                            backgroundImage: AssetImage('images/placeholder_image.png'),
+                          ),
+                        ),
                         if(isSignedIn)
                           IconButton(
-                            onPressed: () {},
+                            onPressed: (){},
                             icon: Icon(Icons.camera_alt,
-                              color: Colors.deepPurple[50],),), //IconButton
+                              color: Colors.deepPurple[50],
+                            ),
+                          ),
                       ],
-                    ), //Stack
-                  ), //Padding
+                    ),
+                  ),
                 ),
-                //Align
-                //TODO: 3. Buat bagian ProfileInfo yang berisi info profil
+                //   TODO 3 : Buat bagian ProfileInfo yang berisi info profile
                 SizedBox(height: 20),
                 Divider(color: Colors.deepPurple[100]),
                 SizedBox(height: 4),
                 ProfileInfoItem(
                   icon: Icons.lock,
-                  label: 'Pengguna',
-                  value: userName,
                   iconColor: Colors.amber,
+                  label: 'Pengguna',
+                  value: fullName,
+                  showEditIcon: isSignedIn,
+                  onEditPressed: () {},
                 ),
                 SizedBox(height: 4),
                 Divider(color: Colors.deepPurple[100]),
@@ -87,10 +93,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ProfileInfoItem(
                   icon: Icons.person,
                   label: 'Nama',
-                  value: fullName,
+                  value: userName,
                   showEditIcon: isSignedIn,
                   onEditPressed: () {
-                    //Tindakan saat ikon edit ditekan, misalnya: pengeditan nama
                     debugPrint('Icon edit ditekan ...');
                   },
                   iconColor: Colors.blue,
@@ -104,22 +109,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   value: favoriteCandiCount > 0 ? '$favoriteCandiCount' : '',
                   iconColor: Colors.red,
                 ),
-
-                // TODO: 4. Buat ProfileActions yang berisi TextButton sign in/out
+                //   TODO 4 : Buat bagian ProfileActions yang berisi TextButton sign in/out
                 SizedBox(height: 4),
                 Divider(color: Colors.deepPurple[100]),
-                SizedBox(height: 20),
+                SizedBox(height: 4),
                 isSignedIn ? TextButton(
                     onPressed: signOut,
-                    child: Text('Sign Out')) //TextButton
+                    child: Text('Sign Out'))
                     : TextButton(
                     onPressed: signIn,
-                    child: Text('Sign In')), //TextButton
-             ],
-            ), //Column
-          ), //Padding
+                    child: Text('Sign In')
+                ),
+              ],
+            ),
+          ),
         ],
-      ), //Stack
-    ); //Scaffold
+      ),
+    );
   }
 }
