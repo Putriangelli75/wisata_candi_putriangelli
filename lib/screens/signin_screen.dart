@@ -10,71 +10,122 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends State<SignInScreen>
+    with SingleTickerProviderStateMixin {
   // TODO: 1. Deklarasikan variabel
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   String _errorText = '';
   bool _obscurePassword = true;
+  late AnimationController _entranceController;
+  late Animation<double> _fadeIn;
+  late Animation<Offset> _slideIn;
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    )..forward();
+
+    _fadeIn = CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOut,
+    );
+    _slideIn = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _entranceController, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
+  }
 
   Future<Map<String, String>> _retrieveAndDecryptDataFromPrefs(
-    SharedPreferences sharedPreferences,
-  ) async {
-    final encryptedUsername = sharedPreferences.getString('username') ?? '';
-    final encryptedPassword = sharedPreferences.getString('password') ?? '';
-    final keyString = sharedPreferences.getString('key') ?? '';
-    final ivString = sharedPreferences.getString('iv') ?? '';
+      SharedPreferences sharedPreferences,
+      ) async {
+    final encryptedUsername = sharedPreferences.getString('username');
+    final encryptedPassword = sharedPreferences.getString('password');
+    final keyString = sharedPreferences.getString('key');
+    final ivString = sharedPreferences.getString('iv');
 
-    final encrypt.Key key = encrypt.Key.fromBase64(keyString);
-    final iv = encrypt.IV.fromBase64(ivString);
+    // Jika belum ada akun tersimpan, kembalikan map kosong
+    if (encryptedUsername == null ||
+        encryptedPassword == null ||
+        keyString == null ||
+        ivString == null ||
+        encryptedUsername.isEmpty ||
+        encryptedPassword.isEmpty ||
+        keyString.isEmpty ||
+        ivString.isEmpty) {
+      return {};
+    }
 
-    final encrypter = encrypt.Encrypter(encrypt.AES(key));
-    final decryptedUsername = encrypter.decrypt64(encryptedUsername, iv: iv);
-    final decryptedPassword = encrypter.decrypt64(encryptedPassword, iv: iv);
+    try {
+      final encrypt.Key key = encrypt.Key.fromBase64(keyString);
+      final iv = encrypt.IV.fromBase64(ivString);
 
-    // Mengembalikan data terdekripsi
-    return {'username': decryptedUsername, 'password': decryptedPassword};
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+      final decryptedUsername = encrypter.decrypt64(encryptedUsername, iv: iv);
+      final decryptedPassword = encrypter.decrypt64(encryptedPassword, iv: iv);
+
+      return {'username': decryptedUsername, 'password': decryptedPassword};
+    } catch (_) {
+      // Jika terjadi kesalahan dekripsi, anggap data tidak valid
+      return {};
+    }
   }
 
   void _signIn() async {
     try {
       final Future<SharedPreferences> prefsFuture =
-          SharedPreferences.getInstance();
+      SharedPreferences.getInstance();
 
-      final String username = _usernameController.text;
-      final String password = _passwordController.text;
+      final String username = _usernameController.text.trim();
+      final String password = _passwordController.text.trim();
 
-      if (username.isNotEmpty && password.isNotEmpty) {
-        final SharedPreferences prefs = await prefsFuture;
-        final data = await _retrieveAndDecryptDataFromPrefs(prefs);
-        if (data.isNotEmpty) {
-          final decryptedUsername = data['username'];
-          final decryptedPassword = data['password'];
-          if (username == decryptedUsername && password == decryptedPassword) {
-            _errorText = '';
-            prefs.setBool('isSignedIn', true);
-            // Pemanggilan untuk menghapus semua halaman dalam tumpukan navigasi
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            });
-            // Sign in berhasil, navigasikan ke layar utama
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.pushReplacementNamed(context, '/');
-            });
-          } else {
-            setState(() {
-              _errorText = 'Username atau password tidak sesuai';
-            });
-          }
-        } else {
-          setState(() {
-            _errorText = 'Akun tidak ditemukan';
-          });
-        }
-      } else {
+      if (username.isEmpty || password.isEmpty) {
         setState(() {
           _errorText = 'Username dan password tidak boleh kosong';
+        });
+        return;
+      }
+
+      final SharedPreferences prefs = await prefsFuture;
+      final data = await _retrieveAndDecryptDataFromPrefs(prefs);
+
+      if (data.isEmpty) {
+        setState(() {
+          _errorText = 'Akun tidak ditemukan. Silakan sign up terlebih dahulu.';
+        });
+        return;
+      }
+
+      final decryptedUsername = data['username'];
+      final decryptedPassword = data['password'];
+
+      if (username == decryptedUsername && password == decryptedPassword) {
+        await prefs.setBool('isSignedIn', true);
+        setState(() {
+          _errorText = '';
+        });
+
+        // Pemanggilan untuk menghapus semua halaman dalam tumpukan navigasi
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        });
+        // Sign in berhasil, navigasikan ke layar utama
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/');
+        });
+      } else {
+        setState(() {
+          _errorText = 'Username atau password tidak sesuai';
         });
       }
     } catch (e) {
@@ -93,83 +144,89 @@ class _SignInScreenState extends State<SignInScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Form(
-              child: Column(
-                // TODO: 4. Atur mainAxisAlignment dan crossAxisAlignment
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // TODO: 5. Pasang TextFormField Nama Pengguna
-                  TextFormField(
-                    controller: _usernameController,
-                    decoration: const InputDecoration(
-                      labelText: "Nama Pengguna",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  // TODO: 6. Pasang TextFormField Kata Sandi
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      labelText: "Kata Sandi",
-                      errorText: _errorText.isNotEmpty ? _errorText : null,
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
+            child: FadeTransition(
+              opacity: _fadeIn,
+              child: SlideTransition(
+                position: _slideIn,
+                child: Form(
+                  child: Column(
+                    // TODO: 4. Atur mainAxisAlignment dan crossAxisAlignment
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // TODO: 5. Pasang TextFormField Nama Pengguna
+                      TextFormField(
+                        controller: _usernameController,
+                        decoration: const InputDecoration(
+                          labelText: "Nama Pengguna",
+                          border: OutlineInputBorder(),
                         ),
                       ),
-                    ),
-                    obscureText: _obscurePassword,
-                  ),
-                  // TODO: 7. Pasang ElevatedButton Sign In
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      _signIn();
-                    },
-                    child: const Text("Sign In"),
-                  ),
-                  // TODO: 8. Pasang TextButton Sign Up
-                  const SizedBox(height: 10),
-                  // TextButton(
-                  //     onPressed: () {
-                  //       Navigator.pushNamed(context, '/signup');
-                  //     },
-                  //     child: Text('Belum punya akun? Daftar di sini.')
-                  // ),
-                  RichText(
-                    text: TextSpan(
-                      text: 'Belum punya akun? ',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.deepPurple,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: 'Daftar di sini.',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                            fontSize: 16,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              Navigator.pushNamed(context, '/signup');
+                      // TODO: 6. Pasang TextFormField Kata Sandi
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          labelText: "Kata Sandi",
+                          errorText: _errorText.isNotEmpty ? _errorText : null,
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
                             },
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                          ),
                         ),
-                      ],
-                    ),
+                        obscureText: _obscurePassword,
+                      ),
+                      // TODO: 7. Pasang ElevatedButton Sign In
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          _signIn();
+                        },
+                        child: const Text("Sign In"),
+                      ),
+                      // TODO: 8. Pasang TextButton Sign Up
+                      const SizedBox(height: 10),
+                      // TextButton(
+                      //     onPressed: () {
+                      //       Navigator.pushNamed(context, '/signup');
+                      //     },
+                      //     child: Text('Belum punya akun? Daftar di sini.')
+                      // ),
+                      RichText(
+                        text: TextSpan(
+                          text: 'Belum punya akun? ',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.deepPurple,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Daftar di sini.',
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                                fontSize: 16,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.pushNamed(context, '/signup');
+                                },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

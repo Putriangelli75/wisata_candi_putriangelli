@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,8 +15,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   // 1. Declare necessary variables
   bool isSignedIn = false;
-  String fullName = ''; // Example name
-  String userName = ''; // Example username
+  String fullName = '';
+  String userName = '';
   int favoriteCandiCount = 0;
   String? profileImageBase64;
 
@@ -33,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     await prefs.setBool('isSignedIn', false);
 
     setState(() {
-      isSignedIn = !isSignedIn;
+      isSignedIn = false;
       userName = '';
       fullName = '';
       favoriteCandiCount = 0;
@@ -56,10 +57,40 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   void _identitas() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      fullName = prefs.getString("fullname") ?? "";
-      userName = prefs.getString("username") ?? "";
-    });
+    final encryptedFullName = prefs.getString("fullname");
+    final encryptedUserName = prefs.getString("username");
+    final keyString = prefs.getString('key');
+    final ivString = prefs.getString('iv');
+
+    if (encryptedFullName != null &&
+        encryptedUserName != null &&
+        keyString != null &&
+        ivString != null &&
+        encryptedFullName.isNotEmpty &&
+        encryptedUserName.isNotEmpty &&
+        keyString.isNotEmpty &&
+        ivString.isNotEmpty) {
+      try {
+        final key = encrypt.Key.fromBase64(keyString);
+        final iv = encrypt.IV.fromBase64(ivString);
+        final encrypter = encrypt.Encrypter(encrypt.AES(key));
+
+        setState(() {
+          fullName = encrypter.decrypt64(encryptedFullName, iv: iv);
+          userName = encrypter.decrypt64(encryptedUserName, iv: iv);
+        });
+      } catch (_) {
+        setState(() {
+          fullName = "";
+          userName = "";
+        });
+      }
+    } else {
+      setState(() {
+        fullName = "";
+        userName = "";
+      });
+    }
   }
 
   // Fungsi untuk mendapatkan jumlah favorit
@@ -70,13 +101,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       favoriteCandiCount = favoriteNames.length;
     });
   }
-
-  // Fungsi untuk memilih gambar dari gallery dan upload ke SharedPreferences
-  // - Buka image picker dari gallery
-  // - Convert gambar ke bytes kemudian encode ke base64
-  // - Simpan base64 string ke SharedPreferences dengan key 'profileImageBase64'
-  // - Update state untuk menampilkan gambar di CircleAvatar
-  // - Tampilkan SnackBar konfirmasi jika berhasil
   Future<void> _pickImage() async {
     try {
       final XFile? pickedFile = await ImagePicker().pickImage(
@@ -185,15 +209,15 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 backgroundColor: Colors.deepPurple[100],
                                 backgroundImage: profileImageBase64 != null
                                     ? MemoryImage(
-                                        base64Decode(profileImageBase64!),
-                                      )
+                                  base64Decode(profileImageBase64!),
+                                )
                                     : null,
                                 child: profileImageBase64 == null
                                     ? Icon(
-                                        Icons.person,
-                                        size: 60,
-                                        color: Colors.deepPurple,
-                                      )
+                                  Icons.person,
+                                  size: 60,
+                                  color: Colors.deepPurple,
+                                )
                                     : null,
                               ),
                             ),
@@ -326,13 +350,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ),
                     isSignedIn
                         ? TextButton(
-                            onPressed: signOut,
-                            child: const Text('Sign Out'),
-                          )
+                      onPressed: signOut,
+                      child: const Text('Sign Out'),
+                    )
                         : TextButton(
-                            onPressed: signIn,
-                            child: const Text('Sign In'),
-                          ),
+                      onPressed: signIn,
+                      child: const Text('Sign In'),
+                    ),
                   ],
                 ),
               ),

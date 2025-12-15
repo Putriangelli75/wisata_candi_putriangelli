@@ -10,22 +10,29 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends State<SearchScreen>
+    with SingleTickerProviderStateMixin {
   //TODO 1: Deklarasikan variabel yang dibutuhkan
   late List<Candi> _filteredCandi;
   String _searchQuery = "";
   late TextEditingController _searchController;
+  late AnimationController _listAnimationController;
 
   @override
   void initState() {
     super.initState();
     _filteredCandi = candiList;
     _searchController = TextEditingController();
+    _listAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 450),
+      vsync: this,
+    )..forward();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _listAnimationController.dispose();
     super.dispose();
   }
 
@@ -56,9 +63,9 @@ class _SearchScreenState extends State<SearchScreen> {
                       _filteredCandi = candiList
                           .where(
                             (candi) => candi.name.toLowerCase().contains(
-                              query.toLowerCase(),
-                            ),
-                          )
+                          query.toLowerCase(),
+                        ),
+                      )
                           .toList();
                     }
                   });
@@ -70,15 +77,15 @@ class _SearchScreenState extends State<SearchScreen> {
                   // TODO: 7. Implementasi pengosongan input
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {
-                              _searchQuery = '';
-                              _filteredCandi = candiList;
-                            });
-                          },
-                        )
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        _searchQuery = '';
+                        _filteredCandi = candiList;
+                      });
+                    },
+                  )
                       : null,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -97,6 +104,16 @@ class _SearchScreenState extends State<SearchScreen> {
                 itemCount: _filteredCandi.length,
                 itemBuilder: (context, index) {
                   final candi = _filteredCandi[index];
+                  final animation = Tween<double>(begin: 0, end: 1).animate(
+                    CurvedAnimation(
+                      parent: _listAnimationController,
+                      curve: Interval(
+                        (index / _filteredCandi.length).clamp(0.0, 1.0),
+                        ((index + 1) / _filteredCandi.length).clamp(0.0, 1.0),
+                        curve: Curves.easeOut,
+                      ),
+                    ),
+                  );
                   return GestureDetector(
                     onTap: () {
                       // TODO: 8. Implementasi GestureDetector dan Hero animation
@@ -107,46 +124,55 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       );
                     },
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            width: 100,
-                            height: 100,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Hero(
-                                tag: 'candi-${candi.name}',
-                                child: Image.asset(
-                                  candi.imageAsset,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.05),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
                           ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  candi.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                width: 100,
+                                height: 100,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Hero(
+                                    tag: 'candi-${candi.name}',
+                                    child: Image.asset(
+                                      candi.imageAsset,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(candi.location),
-                              ],
-                            ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      candi.name,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(candi.location),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   );
